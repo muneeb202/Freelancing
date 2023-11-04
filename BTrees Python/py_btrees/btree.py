@@ -170,6 +170,28 @@ class BTree:
         # Write back changes to disk for both nodes
         
 
+    def find(self, key: KT) -> Optional[VT]:
+        """
+        Find a key and return the value associated with it.
+        If it is not in the BTree, return None.
+
+        This should be implemented with a logarithmic search
+        in the node.keys array, not a linear search. Look at the
+        BTreeNode.find_idx() method for an example of using
+        the builtin bisect library to search for a number in 
+        a sorted array in logarithmic time.
+        """
+        node = self._find_node1(key)  # Find the leaf node where the key should be located
+
+        # Perform a binary search within the node's keys
+        idx = bisect.bisect_left(node.keys, key)
+
+        if idx < len(node.keys) and node.keys[idx] == key:
+            # Key found, return the associated value
+            return node.data[idx]
+        else:
+            # Key not found
+            return None
 
     def delete(self, key: KT) -> None:
         raise NotImplementedError("Karma method delete()")
