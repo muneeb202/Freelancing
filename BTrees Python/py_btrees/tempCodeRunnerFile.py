@@ -1,2 +1,0 @@
-ain__':
-    pytest.main()

@@ -1,9 +1,8 @@
 from __future__ import annotations
-import typing
 import bisect
-from typing import Any, List, Optional, Tuple, Union, Dict, Generic, TypeVar, cast, NewType
-from disk import DISK, Address
-from comparable import Comparable
+from typing import Any, List, Optional,Generic, TypeVar
+from py_btrees.disk import DISK, Address
+from py_btrees.comparable import Comparable
 
 KT = TypeVar("KT", bound=Comparable)  # Key Type for generics
 VT = TypeVar("VT", bound=Any)  # Value Type for generics
