@@ -1,2 +1,2 @@
-in__':
+ain__':
     pytest.main()
