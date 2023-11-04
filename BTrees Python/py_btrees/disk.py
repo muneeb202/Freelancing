@@ -45,7 +45,7 @@ class Disk:
 
     def write(self, addr: Address, data: "BTreeNode"):
         self.verify()
-        if str(type(data)) != "<class 'py_btrees.btree_node.BTreeNode'>":
+        if str(type(data)) != "<class 'btree_node.BTreeNode'>":
             raise ValueError(f"You can only write BTreeNodes to the disk, not {str(type(data))}.")
         if (addr >= len(self.memory)):
             raise ValueError(f"Error: Memory address {addr} has not yet been allocated. You cannot write to it.")
