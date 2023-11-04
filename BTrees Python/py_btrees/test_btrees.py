@@ -1,8 +1,8 @@
-from py_btrees.disk import DISK
-from py_btrees.btree import BTree
-from py_btrees.btree_node import BTreeNode, get_node
-
+from disk import DISK
+from btree import BTree
+from btree_node import BTreeNode, get_node
 import pytest
+import random
 from typing import Any
 
 # This is a rewriting of all of the specifications that the handout provides,
@@ -59,6 +59,8 @@ def test_btree_properties_odd() -> None:
     L = 3
     btree = BTree(M, L)
     for i in range(100):
+        if i == 6:
+            i = 6
         btree.insert(i, str(i))
     for i in range(0, -100, -1):
         btree.insert(i, str(i))
@@ -160,3 +162,98 @@ def test_other_datatypes():
     btree.insert("hello", "there")
 
     assert btree.find("1") == "1"
+
+def test_insert_and_find_large():
+    M = 2
+    L = 2
+    btree = BTree(M, L)
+
+    # Insert 100 random numbers into the B-Tree
+    random_numbers = list(range(1, 20))
+    random.shuffle(random_numbers)
+    random_numbers = [10, 0, 20, 5, 2, 3]
+    print(random_numbers)
+    for num in random_numbers:
+        btree.insert(num, str(num))
+        btree.print_tree()
+        print('-----------\n')
+    btree.print_tree()
+    # Check that the find operation retrieves the correct values
+    for num in range(1, 20):
+        if num == 6:
+            num = 6
+        print(num)
+        assert btree.find(num) == str(num)
+
+    # Check some non-existent keys
+    assert btree.find(0) is None
+    assert btree.find(101) is None
+    assert btree.find(50) is None
+    assert btree.find(999) is None
+
+    btree_properties_recurse(btree.root_addr, DISK.read(btree.root_addr), M, L)
+
+def test_insert_and_find_simple():
+    M = 3
+    L = 3
+    btree = BTree(M, L)
+
+    # Insert key-value pairs into the B-Tree
+    btree.insert(10, "apple")
+    btree.insert(5, "banana")
+    btree.insert(20, "cherry")
+
+    # Check that the find operation retrieves the correct values
+    assert btree.find(10) == "apple"
+    assert btree.find(5) == "banana"
+    assert btree.find(20) == "cherry"
+
+    # Check a non-existent key
+    assert btree.find(15) is None
+
+def test_insert_and_find_duplicates():
+    M = 3
+    L = 3
+    btree = BTree(M, L)
+
+    # Insert key-value pairs with duplicate keys into the B-Tree
+    btree.insert(10, "apple")
+    btree.insert(5, "banana")
+    btree.insert(10, "cherry")  # Overwrite the previous value
+
+    # Check that the find operation retrieves the correct value for the key
+    assert btree.find(10) == "cherry"
+
+def test_insert_and_find_empty_tree():
+    M = 3
+    L = 3
+    btree = BTree(M, L)
+
+    # Try to find a key in an empty B-Tree
+    assert btree.find(10) is None
+
+
+def test_insert_and_find_multiple_splits():
+    M = 2
+    L = 2
+    btree = BTree(M, L)
+
+    # Insert key-value pairs that trigger multiple splits
+    btree.insert(10, "apple")
+    btree.insert(5, "banana")
+    btree.insert(20, "cherry")
+    btree.insert(3, "date")
+    btree.insert(6, "elderberry")
+    btree.print_tree()
+
+    # Check that the find operation retrieves the correct values
+    assert btree.find(10) == "apple"
+    assert btree.find(5) == "banana"
+    assert btree.find(20) == "cherry"
+    assert btree.find(3) == "date"
+    assert btree.find(6) == "elderberry"
+
+test_insert_and_find_multiple_splits()
+# test_insert_and_find_large()
+# if __name__ == '__main__':
+#     pytest.main()
