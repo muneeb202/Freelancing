@@ -23,6 +23,30 @@ def read_file():
 
     return pokemon_index
 
+def display(pokemons, index):
+    os.system('cls')
+    print('\t' * 5 + '-' * 40)
+    print('\t' * 6 + 'P O K E M O N    W I K I')
+    print('\t' * 5 + '-' * 40 + '\n\n')
+    num = '000'
+    pokemon = pokemons[index]
+    display_index = str(index + 1)
+    
+    print('#' + num[0:3 - len(display_index)] + display_index + ' ' + pokemon[0] + ' (' + pokemon[1][0], end='')
+    for i in range(1, len(pokemon[1])):
+        print(' | ' + pokemon[1][i], end='')
+    print(')\n')
+    print(pokemon[3])
+    header = ['Attack', 'Type', 'Power', 'PP', 'Category']
+    print(f'\n\n{header[0]:20} {header[1]:20} {header[2]:20} {header[3]:20} {header[4]:20}')
+    print('-' * 92)
+    for attack in pokemon[2]:
+        if attack == '':
+            break
+        tokens = attack.split('\t')
+        print(f'{tokens[0]:20} {tokens[1]:20} {tokens[2]:20} {tokens[3]:20} {tokens[4]:20}')
+
+
 def main():
 
     pokemons = read_file()
