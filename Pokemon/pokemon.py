@@ -1,8 +1,27 @@
 import os
 
 def read_file():
-    pass
+    file = open("pokemon.txt")
 
+    pokemon_index = []
+
+    for i in range(151):
+        pokemon = []
+        pokemon.append(file.readline().strip())
+        pokemon.append(file.readline().strip().split('\t'))
+        attacks = []
+        for j in range(4):
+            attacks.append(file.readline().strip())
+        pokemon.append(attacks)
+        sprite = ''
+        for line in file:
+            if line.strip() == '':
+                break
+            sprite += line
+        pokemon.append(sprite)
+        pokemon_index.append(pokemon)
+
+    return pokemon_index
 
 def main():
 
