@@ -457,4 +457,68 @@ class Customer:
 
         return fees
 
+    
+class System:
+
+    def __init__(self):
+        """constructor for System class, initialse customer list and total transaction fees
+        """
+        self.customers = {}
+        self.fees = 0
+    
+
+    def create(self):
+        """ Create a new customer account and add to list of existing customers
+        """
+        print('\n---- Create Account ----\n')
+        first = input_string("Enter first name:           ")
+        last = input_string("Enter last name:            ")
+        country = input_string("Enter country of residence: ")
+        age = input_number("Enter Age:                  ", 18, None, 'You must be atleast 18!')
+        email = input_string("Enter email:                ")
+        while True:
+            username = input_string("Enter username:             ")
+            if username.lower() in self.customers:
+                print('Username already exists! Try Again\n')
+            else:
+                break
+            
+        password = input_string("Enter password:             ")
+        self.customers[username.lower()] = Customer(first, last, country, age, email, password, username)
+    
+
+    def access(self):
+        """ Access a specific customer account and run the menu for the customer
+        """
+        print('\n---- Access Account ----\n')
+        username = input_string("Enter username: ").lower()
+        password = input_string("Enter password: ")
+
+        if username in self.customers and self.customers[username].password == password:
+            self.fees += self.customers[username].run(self.customers)
+            return
+        
+        print('Incorrect Information! Could not access account')
+
    
+    def run(self):
+        """ Runs the main loop for the bank system
+        """
+        while True:
+            print('\n---------- Menu ----------\n1: Create an Account\n2: Access Account\n3: Exit program')
+            opt = input_number("\nInput Option: ", 1, 3, 'Incorrect option!')
+
+            if opt == 1:
+                self.create()
+
+            elif opt == 2:
+                self.access()
+
+            else:
+                print('\nTerminating Program!!!')
+                break
+    
+
+if __name__ == '__main__':
+    bankingSystem = System()
+    bankingSystem.run()
