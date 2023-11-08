@@ -41,3 +41,88 @@ def input_string(message: str):
             return string
         print('\nInput cannot be empty! Try again!\n')
 
+
+
+class Wallet:
+
+    def __init__(self, Id, balance, wtype):
+        """constructor for the class
+
+        Args:
+            Id (int): wallet id
+            balance (int): initial balance
+            wtype (str): type of wallet
+        """
+        self.id = Id
+        self.balance = balance
+        self.last_trans = 'None'
+        self.type = wtype
+
+
+    def withdraw(self, amount):
+        """withdraw amount from wallet
+
+        Args:
+            amount (int): amount to be withdrawn
+
+        Returns:
+            bool: success/failure of withdrawal
+        """
+        if self.balance < amount:
+            return False
+        else:
+            self.balance -= amount
+            self.last_trans = 'Withdraw'
+            return True
+
+
+    def deposit(self, amount):
+        """deposit amount to wallet
+
+        Args:
+            amount (int): amount to be deposited
+        """
+        self.balance += amount
+        self.last_trans = 'Deposit'
+    
+
+    def transfer_wallet(self, amount, wallet):
+        """transfer amount to another wallet
+
+        Args:
+            amount (int): amount to be transferred
+            wallet (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transferrence
+        """
+        if not self.withdraw(amount):
+            return False
+        else:
+            wallet.balance += (amount * 0.995)
+            self.last_trans = 'Transference'
+            return True
+
+
+    def transfer_customer(self, amount, other):
+        """transfer amount to the wallet of another customer
+
+        Args:
+            amount (int): amount to be transferred
+            other (Wallet): other customer's wallet
+
+        Returns:
+            bool: success/failure of transferrence
+        """
+        if not self.withdraw(amount):
+            return False
+        
+        other.balance += (amount * 0.985)
+        self.last_trans = 'Transference'
+        return True
+
+    def display(self):
+        """print information of the wallet
+        """
+        print(f'{self.id:<14} {round(self.balance, 2):<11} {self.last_trans:<19} {self.type}')
+    
