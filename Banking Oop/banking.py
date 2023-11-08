@@ -249,3 +249,212 @@ class Mortgage(Wallet):
         print('No transfer privileges!')
         return False
 
+
+class Customer:
+    
+    def __init__(self, first, last, country, age, email, password, username):
+        """initialise all variables and attributes
+
+        Args:
+            first (str): first name
+            last (str): last name
+            country (str): country of residence
+            age (int): Age
+            email (str): email
+            password (str): account password
+            username (str): account username
+        """
+        self.first_name = first
+        self.last_name = last
+        self.residence = country
+        self.age = age
+        self.email = email
+        self.password = password
+        self.username = username
+        self.wallets = {}
+
+
+    def create(self):
+        """create a new wallet for the customer
+        """
+        while True:
+            w_id = input_number('\nEnter wallet id:  ', 1, None, 'Wallet Id must be positive\n')
+            if w_id not in self.wallets:
+                break
+            print('Wallet Id already exists! try again')
+        
+        balance = input_number('Enter balance:    ', 0, None, 'Balance cannot be negative\n')
+        wtype = input_number('Enter Wallet Type (1/Daily, 2/Saving, 3/Holidays, 4/Mortgage): ', 1, 4, 'Incorrect option!\n')
+        
+        if wtype == 1:
+            self.wallets[w_id] = Daily(w_id, balance)
+        elif wtype == 2:
+            self.wallets[w_id] = Saving(w_id, balance)
+        elif wtype == 3:
+            self.wallets[w_id] = Holiday(w_id, balance)
+        elif wtype == 4:
+            self.wallets[w_id] = Mortgage(w_id, balance)
+
+        print('\nSuccessfully created wallet!')
+
+        
+    def delete(self):
+        """delete a particular wallet of the customer
+        """
+        w_id = input_number('Enter wallet id: ')
+        if w_id not in self.wallets:
+            print('Wallet Id does not exist!')
+            return
+        
+        opt = input_string('Are you sure you want to delete Wallet! Y/N : ').lower()
+        if opt != 'y':
+            return
+
+        del self.wallets[w_id]
+        print('Successfully deleted wallet')
+            
+        
+
+    def deposit(self):
+        """deposit amount to a particular wallet
+        """
+        w_id = input_number('Enter wallet id: ')
+        if w_id not in self.wallets:
+            print('Wallet Id does not exist!')
+            return
+
+        amount = input_number('Enter amount to deposit: ', 1, None, 'Amount must be positive!')
+        self.wallets[w_id].deposit(amount)
+        print('\nSuccessfully deposited amount!')
+
+
+    def withdraw(self):
+        """withdraw amount from a particular wallet
+        """
+        w_id = input_number('Enter wallet id: ')
+        if w_id not in self.wallets:
+            print('Wallet Id does not exist!')
+            return
+
+        amount = input_number('Enter amount to withdraw: ', 1, None, 'Amount must be positive!')
+        if self.wallets[w_id].withdraw(amount):
+            print('\nSuccessfully withdrawn amount!')
+        else:
+            print('Could not withdraw amount!')
+
+
+    def transfer_wallet(self):
+        """transfer amount to another wallet
+
+        Returns:
+            float: fees generated in transfering amount
+        """
+        w_id = input_number('\nEnter sending wallet id:     ')
+        if w_id not in self.wallets:
+            print('Wallet Id does not exist!')
+            return 0
+
+        w_id2 = input_number('Enter recieving wallet id:   ')
+        if w_id2 not in self.wallets:
+            print('Wallet Id does not exist!')
+            return 0
+
+        amount = input_number('Enter amount to transfer:    ', 1, None, 'Amount must be positive!')
+        fees = amount * 0.005
+        
+        if self.wallets[w_id].transfer_wallet(amount, self.wallets[w_id2]):
+            print(f'\nSuccessfully transferred amount! Transaction fee : {round(fees, 2)}')
+            return fees
+        else:
+            print('Could not transfer amount!')
+            return 0
+
+
+    def transfer_customer(self, others):
+        """transfer amount from a wallet to another customer's wallet
+
+        Args:
+            others (list): list of other customers
+
+        Returns:
+            float: fees generated in transfering amount to another customer
+        """
+        w_id = input_number('\nEnter sending wallet id: ')
+        if w_id not in self.wallets:
+            print('Wallet Id does not exist!')
+            return 0
+
+        username = input_string('Enter recieving Customer\'s Username: ').lower()
+
+        if username in others:
+            receiver = others[username]
+
+            w_id2 = input_number('Enter recieving wallet id: ')
+            if w_id2 not in receiver.wallets:
+                print('Wallet Id does not exist!')
+                return 0
+
+            amount = input_number('Enter amount to transfer: ', 1, None, 'Amount must be positive!')
+            fees = amount * 0.015
+
+            if self.wallets[w_id].transfer_customer(amount, receiver.wallets[w_id2]):
+                print(f'\nSuccessfully transferred amount! Transaction fee : {round(fees, 2)}')
+                return fees
+            else:
+                print('Could not transfer amount!')
+                return 0
+        
+        print('No such Customer exists!')
+        return 0
+
+    
+    def print_wallets(self):
+        """prints the description of each and every wallet of the customer
+        """
+        print('\nWallet ID      Balance     Last Transaction    Wallet Type\n' + ('-' * 58))
+        for wallet in self.wallets:
+            self.wallets[wallet].display()
+
+
+    def run(self, others):
+        """runs the main loop for a particular customer
+
+        Args:
+            others (list): all customers, used to transferring to other customers
+
+        Returns:
+            float: amount of fees generated in accessing the customer account
+        """
+        fees = 0
+        while True:
+            print('\n---------- Menu ----------\n1: Create Wallet\n2: Delete Wallet\n3: Deposit Money\n4: Withdraw Money\n5: Transfer to another Wallet\n6: Transfer to another Customer\n7: Print Wallet details\n8: Logout')
+            opt = input_number("\nInput Option: ", 1, 8, 'Incorrect Option!')
+
+            if opt == 1:
+                self.create()
+
+            elif opt == 2:
+                self.delete()
+
+            elif opt == 3:
+                self.deposit()
+
+            elif opt == 4:
+                self.withdraw()
+
+            elif opt == 5:
+                fees += self.transfer_wallet()
+
+            elif opt == 6:
+                fees += self.transfer_customer(others)
+
+            elif opt == 7:
+                self.print_wallets()
+
+            else:
+                print('\nLogging Out!!!')
+                break
+
+        return fees
+
+   
