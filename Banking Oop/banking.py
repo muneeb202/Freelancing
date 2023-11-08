@@ -126,3 +126,126 @@ class Wallet:
         """
         print(f'{self.id:<14} {round(self.balance, 2):<11} {self.last_trans:<19} {self.type}')
     
+
+
+class Daily(Wallet):
+    def __init__(self, Id, balance):
+        """constructor for the class, calls parent's constructor
+
+        Args:
+            Id (int): wallet id
+            balance (int): initial balance
+        """
+        Wallet.__init__(self, Id, balance, 'Daily Use')
+
+
+
+class Saving(Wallet):
+    def __init__(self, Id, balance):
+        """constructor for the class, calls parent's constructor
+
+        Args:
+            Id (int): wallet id
+            balance (int): initial balance
+        """
+        Wallet.__init__(self, Id, balance, 'Saving')
+
+    def transfer_wallet(self, amount, wallet):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be transferred
+            wallet (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transference
+        """
+        print('\nNo transfer privileges!')
+        return False
+
+    def transfer_customer(self, amount, other):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be transferred
+            other (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transference
+        """
+        print('No transfer privileges!')
+        return False
+
+
+class Holiday(Wallet):
+    def __init__(self, Id, balance):
+        """constructor for the class, calls parent's constructor
+
+        Args:
+            Id (int): wallet id
+            balance (int): initial balance
+        """
+        Wallet.__init__(self, Id, balance, 'Holidays')
+
+    def transfer_customer(self, amount, other):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be transferred
+            other (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transference
+        """
+        print('No transfer privileges!')
+        return False
+
+
+class Mortgage(Wallet):
+    def __init__(self, Id, balance):
+        """constructor for the class, calls parent's constructor
+
+        Args:
+            Id (int): wallet id
+            balance (int): initial balance
+        """
+        Wallet.__init__(self, Id, balance, 'Mortgage')
+
+    def withdraw(self, amount):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be withdrawn
+
+        Returns:
+            bool: success/failure of withdrawal
+        """
+        print('No withdrawal privileges!')
+        return False
+
+    def transfer_wallet(self, amount, wallet):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be transferred
+            wallet (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transference
+        """
+        print('No transfer privileges!')
+        return False
+
+    def transfer_customer(self, amount, other):
+        """use polymorphism to override function in parent class, as transfer privelleges to be denied
+
+        Args:
+            amount (int): amount to be transferred
+            other (Wallet): wallet to be transferred to
+
+        Returns:
+            bool: success/failure of transference
+        """
+        print('No transfer privileges!')
+        return False
+
