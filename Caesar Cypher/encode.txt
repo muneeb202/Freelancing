@@ -1,0 +1,30 @@
+
+encode()
+    for each char in the input string
+        convert the char to number
+        add the key to the number
+        convert the new number to char
+        add the char to the encrypted string
+
+decode()
+    for each char in the input string
+        convert the char to number
+        subtract the key from the number
+        convert the new number to char
+        add the char to the decrypted string
+
+
+start loop
+    display menu
+    input menu option
+
+    if option 1 entered
+        call encode
+
+    else if option 2 entered
+        call decode
+
+    else if option 3 entered
+        exit loop
+
+    else print incorrect option
