@@ -60,3 +60,43 @@ def exercise2(breed,height,weight,male):
                 return True
             else:
                 return False
+
+# Exercise 3 - Basic Statistics
+def exercise3(l):
+    def performCalculations(list_):
+        resultList = []
+        minimum = min(list_)
+        maximum = max(list_)
+        copylist = list_.copy()
+        copylist.sort()
+        length = len(list_)
+        if length % 2 == 0:
+            median = (copylist[length//2] + copylist[(length // 2) - 1]) / 2
+        else:
+            median = copylist[length//2]
+        average = sum(list_) / length
+        resultList.extend([minimum, average, median, maximum])
+        return resultList
+
+    result = []
+    list1 = []
+    list1 = performCalculations(l)
+    result.append(tuple(list1))
+    squaredList = [num**2 for num in l]
+    list2 = performCalculations(squaredList)
+    result.append(tuple(list2))
+    return result
+
+# Exercise 4 - Finite-State Machine Simulator
+def exercise4(trans,init_state,input_list):
+    output = []
+    curr = init_state + '/' + input_list[0]               # start state + 1st input
+
+    for inp in input_list:
+        curr = curr[0:2] + inp                           # current state + current input
+        out = trans.get(curr)                                   # get value of current_state/current_input
+        output.append(out[2:])                                       # append output to list
+
+        curr = out                                           # change state
+
+    return output
