@@ -276,3 +276,87 @@ def exercise9(green,yellow,gray):
                 count+=1
 
     return count
+
+# Exercise 10 - One Step of Wordle
+def exercise10(green,yellow,gray):
+    def wordle(green, yellow, gray):
+        path_of_file = './test_data/wordle.txt'
+        wordleFile = open(path_of_file , "r")
+        fileContent = wordleFile.read()
+        wordleWords = fileContent.split("\n")
+        keyList = list(green.keys())
+        yellowKeyList = list(yellow.keys())
+        count = 0
+        wordle_set = []
+        for eachWord in wordleWords:
+            check1, check2, check3 = True, True, True
+            for x in yellowKeyList:
+                if x not in list(eachWord):
+                    check2 = False
+                    break
+            for index, eachLetter in enumerate(eachWord):
+                if eachLetter in gray:
+                    check1 = False
+                    break
+                if eachLetter in yellowKeyList and index in yellow[eachLetter]:
+                    check2 = False
+                    break
+                if index in keyList:
+                    if eachLetter != green[index]:
+                        check3 = False
+                if index == len(eachWord) - 1 and check1 and check2 and check3:
+                    wordle_set.append(eachWord)
+
+        return wordle_set
+
+    wordle_set = wordle(green, yellow, gray)
+    for i in range(0, len(wordle_set)):
+        for j in range(0, len(wordle_set)):
+            if wordle_set[i] != wordle_set[j]:
+                for k in range(0, 5):
+                    if list(wordle_set[i])[k] == list(wordle_set[j])[k]:
+                        green[k] = list(wordle_set[i])[k]
+                    
+                    if list(wordle_set[i])[k] != list(wordle_set[j])[k] and list(wordle_set[i])[k] in list(wordle_set[j]):
+                        if list(wordle_set[i])[k] in yellow.keys() and k not in yellow[list(wordle_set[i])[k]]:
+                            yellow[list(wordle_set[i])[k]].add(k)
+                        else:
+                            yellow[list(wordle_set[i])[k]] = {k}
+
+                    if list(wordle_set[i])[k] != list(wordle_set[j])[k] and list(wordle_set[i])[k] not in list(wordle_set[j]):
+                        if list(wordle_set[i])[k] not in gray:
+                            gray.add(list(wordle_set[i])[k])
+    
+    def new_wordle(green, yellow, gray, wordleWords):
+        keyList = list(green.keys())
+        yellowKeyList = list(yellow.keys())
+        
+        lowest_cardinality = 0
+        wordle_set = []
+        for eachWord in wordleWords:
+            cardinality = 0 
+            for x in yellowKeyList:
+                if x not in list(eachWord):
+                    cardinality += 1
+            for index, eachLetter in enumerate(eachWord):
+                if eachLetter in gray:
+                    cardinality += 1
+
+                if eachLetter in yellowKeyList and index in yellow[eachLetter]:
+                    cardinality += 1
+
+                if index in keyList:
+                    if eachLetter != green[index]:
+                        cardinality += 1
+                if index == len(eachWord) - 1:
+                    if lowest_cardinality == 0 or lowest_cardinality > cardinality:
+                        lowest_cardinality = cardinality
+                    wordle_set.append([eachWord, cardinality])
+        words_set = []
+
+        for w_set in wordle_set:
+            if w_set[1] == lowest_cardinality:
+                words_set.append(w_set[0])
+        return words_set
+        
+    return new_wordle(green, yellow, gray, wordle_set)
