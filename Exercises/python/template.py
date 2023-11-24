@@ -100,3 +100,79 @@ def exercise4(trans,init_state,input_list):
         curr = out                                           # change state
 
     return output
+
+# Exercise 5 - Document Stats
+def exercise5(filename):
+    result = []
+    wordleFile = open(filename , "r")
+    fileContent = wordleFile.read()
+
+    #Counting letters
+    letterCount = 0
+    for eachWord in fileContent:
+        for eachLetter in eachWord:
+            if eachLetter.isalpha():
+                letterCount+=1
+
+    result.append(letterCount)
+
+    #Counting numeric characters
+    numericCount = 0
+    for eachWord in fileContent:
+        for eachLetter in eachWord:
+            if eachLetter.isdigit():
+                numericCount+=1
+
+    result.append(numericCount)
+
+    #Counting symbol characters
+    symbolCount = 0
+    specialChars = "!\"£$%&/()='?^+*[]{}#@-_.:,;" 
+    for eachWord in fileContent:
+        for eachLetter in eachWord:
+            if any((c in specialChars) for c in eachLetter):
+                symbolCount+=1
+
+    result.append(symbolCount)
+
+    #Counting words
+    wordCount = 0
+    allchars = specialChars + " \n\t"
+
+    for totalword in fileContent.split():
+        word = ''
+        for ch in totalword:
+            if ch in allchars:
+                if word != '':
+                    wordCount += 1
+                    word = ''
+            else:
+                word += ch
+        if word != '':
+            wordCount += 1
+
+    result.append(wordCount)
+
+    #Counting sentences
+    sentenceCount = 0
+    for eachWord in fileContent:
+        for eachLetter in eachWord:
+            if eachLetter == "." or eachLetter == "!" or eachLetter == "?":
+                sentenceCount+=1
+
+    result.append(sentenceCount)
+
+    #Counting paragraphs
+    fileLines = []
+    with open(filename) as my_file:
+        fileLines = my_file.readlines()
+
+    paragraphCount = 0
+    with open(filename) as f:
+        for i, l in enumerate(f):
+            if l.isspace() and len(fileLines[i+1])-1 != 0:
+                paragraphCount+=1
+
+    result.append(paragraphCount+1)
+    return tuple(result)
+
