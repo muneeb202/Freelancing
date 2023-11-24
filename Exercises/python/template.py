@@ -223,3 +223,27 @@ def exercise7(amount,coins):
         return False
     else:
         return True
+
+# Exercise 8 - Five Letter Unscramble
+def exercise8(s):
+    wordCount = 0
+    allUniqueWords = set()
+
+    def permutation(current, total_length, length, index=-1):
+        if length == 0:
+            allUniqueWords.add(current)
+            return
+        
+        for i in range(total_length):
+            if s.count(s[i]) == current.count(s[i]):
+                continue
+            permutation(current + s[i], total_length, length - 1, index + 1)
+
+    permutation('', len(s), 5)
+    path_of_file = './test_data/wordle.txt'
+    wordleWords = open(path_of_file , "r").read().split('\n')
+    for sequence in allUniqueWords:
+        for word in wordleWords:
+            if sequence == word:
+                wordCount+=1
+    return wordCount
