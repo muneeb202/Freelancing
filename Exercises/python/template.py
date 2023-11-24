@@ -176,3 +176,50 @@ def exercise5(filename):
     result.append(paragraphCount+1)
     return tuple(result)
 
+# Exercise 6 - List Depth
+def exercise6(l):
+    depth = isinstance(l, list)
+    if depth == True:
+        depth = 1
+    else:
+        depth = 0
+
+    while isinstance(l,list):
+        for eachElement in l:
+            if isinstance(eachElement,list):
+                if len(eachElement) != 0:
+                    l = eachElement
+                depth+=1
+                break
+            else:
+                l = eachElement
+    return depth
+
+# Exercise 7 - Change, please
+def exercise7(amount,coins):
+    list = [1, 2, 5, 10, 20, 50, 100, 200]
+    amountInPence = amount*100
+
+    def get_combinations(all_combs, combination, list_, current, start, end):
+
+        if current == coins:
+            if sum(combination) == amountInPence:
+                all_combs.append(combination.copy())
+            return
+        
+        if start == 8:
+            return
+        
+        combination[current] = list_[start]
+
+        get_combinations(all_combs, combination, list_, current + 1, start, end)
+        get_combinations(all_combs, combination, list_, current, start + 1, end)
+
+
+    result = []
+    get_combinations(result, [0] * coins, list, 0, 0, 7)
+
+    if len(result) == 0:
+        return False
+    else:
+        return True
