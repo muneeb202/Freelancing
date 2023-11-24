@@ -247,3 +247,32 @@ def exercise8(s):
             if sequence == word:
                 wordCount+=1
     return wordCount
+
+# Exercise 9 - Wordle Set
+def exercise9(green,yellow,gray):
+    path_of_file = './test_data/wordle.txt'
+    wordleWords = open(path_of_file, "r").read().split('\n')
+    keyList = list(green.keys())
+    yellowKeyList = list(yellow.keys())
+    count = 0
+    
+    for eachWord in wordleWords:
+        check1, check2, check3 = True, True, True
+        for x in yellowKeyList:
+            if x not in list(eachWord):
+                check2 = False
+                break
+        for index, eachLetter in enumerate(eachWord):
+            if eachLetter in gray:
+                check1 = False
+                break
+            if eachLetter in yellowKeyList and index in yellow[eachLetter]:
+                check2 = False
+                break
+            if index in keyList:
+                if eachLetter != green[index]:
+                    check3 = False
+            if index == len(eachWord) - 1 and check1 and check2 and check3:
+                count+=1
+
+    return count
