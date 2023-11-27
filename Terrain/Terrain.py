@@ -1,9 +1,9 @@
 import numpy as np
 
-def ramp_x(x, y):
+def ramp_x(x, _):
     return x
 
-def ramp_y(x, y):
+def ramp_y(_, y):
     return y
 
 def f_sum_x_y(x, y):
@@ -69,17 +69,19 @@ class Terrain:
 
     def compute_extrema(self):
         self.extrema = {}
+        print(self.elevation[3:6, 3:6])
         max_positions = np.argwhere(self.max_elevation())
         min_positions = np.argwhere(self.min_elevation())
-        # print(max_positions)
-        # print(min_positions)
+        print(max_positions)
+        print(min_positions)
         for pos in max_positions:
             self.extrema[tuple(pos)] = 'max'
         for pos in min_positions:
             self.extrema[tuple(pos)] = 'min'
 
     def interpolate_gradient(self, x, y):
-        i, j = int(x % self.n_cols), int(y % self.n_rows)
+        self.compute_gradient()
+        j, i = int(x % self.n_cols), int(y % self.n_rows)
 
         # Get the gradient values at the four corners
         gradient_00 = self.gradient[:, i, j]
@@ -88,7 +90,7 @@ class Terrain:
         gradient_11 = self.gradient[:, (i + 1) % self.n_cols, (j + 1) % self.n_rows]
 
         # Calculate alpha and beta
-        alpha, beta = x - i, y - j
+        alpha, beta = y - i, x - j
 
         # Interpolate the gradient components
         interpolated_x, interpolated_y = self.bilinear_interpolate(alpha, beta, gradient_00[0], gradient_01[0],
@@ -99,18 +101,17 @@ class Terrain:
         return interpolated_x, interpolated_y
 
     def interpolate_elevation(self, x, y):
-        i, j = int(x % self.n_cols), int(y % self.n_rows)
+        i, j = int(y % self.n_rows), int(x % self.n_cols)
         f_00 = self.elevation[i, j]
-        f_01 = self.elevation[i, (j + 1) % self.n_rows]
-        f_10 = self.elevation[(i + 1) % self.n_cols, j]
-        f_11 = self.elevation[(i + 1) % self.n_cols, (j + 1) % self.n_rows]
-        alpha, beta = x % 1, y % 1  # Ensure that alpha and beta are between 0 and 1
+        f_01 = self.elevation[i, (j + 1) % self.n_cols]
+        f_10 = self.elevation[(i + 1) % self.n_rows, j]
+        f_11 = self.elevation[(i + 1) % self.n_rows, (j + 1) % self.n_cols]
+        alpha, beta = y % 1, x % 1  # Ensure that alpha and beta are between 0 and 1
         return self.bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11)
 
     @staticmethod
     def bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11):
-        return (1 - alpha) * (1 - beta) * f_00 + alpha * (1 - beta) * f_10 + (
-                1 - alpha) * beta * f_01 + alpha * beta * f_11
+        return ((1 - alpha) * (1 - beta) * f_00) + ((1 - alpha) * beta * f_01) + (alpha * (1 - beta) * f_10) + (alpha * beta * f_11)
 
 
 #working
@@ -139,13 +140,14 @@ class Terrain:
 
 #working
 # for compute_gradient test
-t = Terrain(ramp_x, 4, 5)
-t.compute_gradient()
-print(t.gradient)
-t = Terrain(ramp_y, 4, 5)
-t.compute_gradient()
-print(t.gradient)
+# t = Terrain(ramp_x, 4, 5)
+# t.compute_gradient()
+# print(t.gradient)
+# t = Terrain(ramp_y, 4, 5)
+# t.compute_gradient()
+# print(t.gradient)
 
+#working
 #for threshold_magnitude_gradient test
 # t = Terrain(f_sum_x_y, 5, 5)
 # print(t.elevation)
@@ -175,21 +177,20 @@ print(t.gradient)
 
 #for interpolate_elevation test
 # t = Terrain(ramp_y, 5, 5)
+# print(t.elevation[3:5, 2:4])
 # print(t.interpolate_elevation(3.75, 2.25))
 
 #working
 # for interpolate_gradient test
 # t = Terrain(ramp_x, 6, 6)
-# t.compute_gradient()
 # print(t.interpolate_gradient(2.75, 3.25))
 # t = Terrain(ramp_y, 6, 6)
-# t.compute_gradient()
 # print(t.interpolate_gradient(2.75, 3.25))
 
 #working
 #for bilinear_interpolate test
-# t = Terrain(ramp_x)
-# print(t.bilinear_interpolate(.25, 0, 1, 2, 3, 4))
-# print(t.bilinear_interpolate(0, .25, 1, 2, 3, 4))
-# print(t.bilinear_interpolate(1, .75, 1, 2, 3, 4))
-# print(t.bilinear_interpolate(.5, .75, 1, 2, 3, 4))
+t = Terrain(ramp_x)
+print(bilinear_interpolate(.25, 0, 1, 2, 3, 4))
+print(t.bilinear_interpolate(0, .25, 1, 2, 3, 4))
+print(t.bilinear_interpolate(1, .75, 1, 2, 3, 4))
+print(t.bilinear_interpolate(.5, .75, 1, 2, 3, 4))
