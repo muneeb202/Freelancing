@@ -35,8 +35,8 @@ class Terrain:
         return self.elevation > threshold
 
     def compute_gradient(self):
-        dx = np.gradient(self.elevation, axis=1)
-        dy = np.gradient(self.elevation, axis=0)
+        dx = (np.roll(self.elevation, shift=-1, axis=1) - np.roll(self.elevation, shift=1, axis=1)) / 2.0
+        dy = (np.roll(self.elevation, shift=-1, axis=0) - np.roll(self.elevation, shift=1, axis=0)) / 2.0
         self.gradient = np.stack((dx, dy), axis=0)
 
     def threshold_magnitude_gradient(self, threshold):
@@ -138,13 +138,13 @@ class Terrain:
 # print(t.threshold_elevation(2))
 
 #working
-#for compute_gradient test
-# t = Terrain(ramp_x, 4, 5)
-# t.compute_gradient()
-# print(t.gradient)
-# t = Terrain(ramp_y, 4, 5)
-# t.compute_gradient()
-# print(t.gradient)
+# for compute_gradient test
+t = Terrain(ramp_x, 4, 5)
+t.compute_gradient()
+print(t.gradient)
+t = Terrain(ramp_y, 4, 5)
+t.compute_gradient()
+print(t.gradient)
 
 #for threshold_magnitude_gradient test
 # t = Terrain(f_sum_x_y, 5, 5)
