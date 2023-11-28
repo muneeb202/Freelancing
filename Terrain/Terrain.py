@@ -9,8 +9,22 @@ def ramp_y(_, y):
 def f_sum_x_y(x, y):
     return x + y
 
-def egg_carton(x, y):
-    return np.sin(x) * np.sin(y)
+def bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11):
+    return ((1 - alpha) * (1 - beta) * f_00) + ((1 - alpha) * beta * f_01) + (alpha * (1 - beta) * f_10) + (alpha * beta * f_11)
+
+def gaussian(x0, y0, sigma, const = 1):
+    ''' returns a function that computes a gaussian shape blob, centered at (x0,y0)
+    with spread sigma and scaled by an optional height const with default value 1.
+    '''
+    def g(x,y):
+        return const * np.exp(-((x-x0)*(x-x0) + (y-y0)*(y-y0))/(2*np.pi*sigma*sigma))
+    return g
+
+def egg_carton(x, y, k = 2, NX = 32, NY = 32):
+    '''
+    returns an egg carton function that has 4 cycles per 32 pixels in each of x and y directions.
+    '''
+    return ( np.sin(2*k*np.pi*x/NX ) + np.sin( 2*k*np.pi*y/NY ) )
 
 class Terrain:
     def __init__(self, func, n_rows=5, n_cols=5):
@@ -69,15 +83,12 @@ class Terrain:
 
     def compute_extrema(self):
         self.extrema = {}
-        print(self.elevation[3:6, 3:6])
         max_positions = np.argwhere(self.max_elevation())
         min_positions = np.argwhere(self.min_elevation())
-        print(max_positions)
-        print(min_positions)
         for pos in max_positions:
-            self.extrema[tuple(pos)] = 'max'
+            self.extrema[tuple(pos[::-1])] = 'max'
         for pos in min_positions:
-            self.extrema[tuple(pos)] = 'min'
+            self.extrema[tuple(pos[::-1])] = 'min'
 
     def interpolate_gradient(self, x, y):
         self.compute_gradient()
@@ -93,9 +104,9 @@ class Terrain:
         alpha, beta = y - i, x - j
 
         # Interpolate the gradient components
-        interpolated_x, interpolated_y = self.bilinear_interpolate(alpha, beta, gradient_00[0], gradient_01[0],
+        interpolated_x, interpolated_y = bilinear_interpolate(alpha, beta, gradient_00[0], gradient_01[0],
                                                                    gradient_10[0], gradient_11[0]), \
-                                         self.bilinear_interpolate(alpha, beta, gradient_00[1], gradient_01[1],
+                                         bilinear_interpolate(alpha, beta, gradient_00[1], gradient_01[1],
                                                                    gradient_10[1], gradient_11[1])
 
         return interpolated_x, interpolated_y
@@ -107,11 +118,7 @@ class Terrain:
         f_10 = self.elevation[(i + 1) % self.n_rows, j]
         f_11 = self.elevation[(i + 1) % self.n_rows, (j + 1) % self.n_cols]
         alpha, beta = y % 1, x % 1  # Ensure that alpha and beta are between 0 and 1
-        return self.bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11)
-
-    @staticmethod
-    def bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11):
-        return ((1 - alpha) * (1 - beta) * f_00) + ((1 - alpha) * beta * f_01) + (alpha * (1 - beta) * f_10) + (alpha * beta * f_11)
+        return bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11)
 
 
 #working
@@ -166,15 +173,16 @@ class Terrain:
 # print(t.min_elevation())
 
 #for compute_extrema test
-# t = Terrain(egg_carton, 32, 32)
-# t.compute_extrema()
-# print(t.extrema == {(4, 4): 'max', (20, 4): 'max', (4, 20): 'max', (20, 20): 'max',
-#                        (12, 12): 'min', (28, 12): 'min', (12, 28): 'min', (28, 28): 'min'})
-# g = gaussian(15, 20, 4)
-# t = Terrain(g, 64, 64)
-# t.compute_extrema()
-# t.extrema == {(15, 20): 'max', (63, 63): 'min'}
+t = Terrain(egg_carton, 32, 32)
+t.compute_extrema()
+print(t.extrema == {(4, 4): 'max', (20, 4): 'max', (4, 20): 'max', (20, 20): 'max',
+                       (12, 12): 'min', (28, 12): 'min', (12, 28): 'min', (28, 28): 'min'})
+g = gaussian(15, 20, 4)
+t = Terrain(g, 64, 64)
+t.compute_extrema()
+print(t.extrema == {(15, 20): 'max', (63, 63): 'min'})
 
+#working
 #for interpolate_elevation test
 # t = Terrain(ramp_y, 5, 5)
 # print(t.elevation[3:5, 2:4])
@@ -189,8 +197,8 @@ class Terrain:
 
 #working
 #for bilinear_interpolate test
-t = Terrain(ramp_x)
-print(bilinear_interpolate(.25, 0, 1, 2, 3, 4))
-print(t.bilinear_interpolate(0, .25, 1, 2, 3, 4))
-print(t.bilinear_interpolate(1, .75, 1, 2, 3, 4))
-print(t.bilinear_interpolate(.5, .75, 1, 2, 3, 4))
+# t = Terrain(ramp_x)
+# print(bilinear_interpolate(.25, 0, 1, 2, 3, 4))
+# print(bilinear_interpolate(0, .25, 1, 2, 3, 4))
+# print(bilinear_interpolate(1, .75, 1, 2, 3, 4))
+# print(bilinear_interpolate(.5, .75, 1, 2, 3, 4))
