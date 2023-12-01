@@ -26,6 +26,16 @@ def egg_carton(x, y, k = 2, NX = 32, NY = 32):
     '''
     return ( np.sin(2*k*np.pi*x/NX ) + np.sin( 2*k*np.pi*y/NY ) )
 
+def roll(arr, shift, axis):
+    rolled_array = np.zeros(arr.shape, dtype=arr.dtype)
+    if axis == 1:
+        rolled_array[:, :shift] = arr[:, -shift:]
+        rolled_array[:, shift:] = arr[:, :-shift]
+    else:
+        rolled_array[:shift, :] = arr[-shift:, :]
+        rolled_array[shift:, :] = arr[:-shift, :]
+    return rolled_array
+
 class Terrain:
     def __init__(self, func, n_rows=5, n_cols=5):
         self.n_rows = n_rows
@@ -49,46 +59,51 @@ class Terrain:
         return self.elevation > threshold
 
     def compute_gradient(self):
-        dx = (np.roll(self.elevation, shift=-1, axis=1) - np.roll(self.elevation, shift=1, axis=1)) / 2.0
-        dy = (np.roll(self.elevation, shift=-1, axis=0) - np.roll(self.elevation, shift=1, axis=0)) / 2.0
-        self.gradient = np.stack((dx, dy), axis=0)
+        self.gradient = np.zeros((2,) + self.elevation.shape)
+        self.gradient[0] = (roll(self.elevation, shift=-1, axis=1) - roll(self.elevation, shift=1, axis=1)) / 2.0
+        self.gradient[1] = (roll(self.elevation, shift=-1, axis=0) - roll(self.elevation, shift=1, axis=0)) / 2.0
 
     def threshold_magnitude_gradient(self, threshold):
-        magnitude = np.linalg.norm(self.gradient, axis=0)
+        magnitude = np.power(np.sum(self.gradient**2, axis=0), 0.5)
         return magnitude > threshold
 
     def max_elevation(self):
-        shifted_up = np.roll(self.elevation, shift=-1, axis=0)
-        shifted_down = np.roll(self.elevation, shift=1, axis=0)
-        shifted_left = np.roll(self.elevation, shift=-1, axis=1)
-        shifted_right = np.roll(self.elevation, shift=1, axis=1)
+        shifted_up = roll(self.elevation, shift=-1, axis=0)
+        shifted_down = roll(self.elevation, shift=1, axis=0)
+        shifted_left = roll(self.elevation, shift=-1, axis=1)
+        shifted_right = roll(self.elevation, shift=1, axis=1)
 
-        max_values = np.maximum.reduce([shifted_up, shifted_down, shifted_left, shifted_right])
+        max_values = np.max(np.array([shifted_up, shifted_down, shifted_left, shifted_right]), axis=0)
         return self.elevation > max_values
 
     def min_elevation(self):
         # Get the elevation values at positions to the immediate left, right, above, and below
-        left = np.roll(self.elevation, shift=(0, 1), axis=(0, 1))
-        right = np.roll(self.elevation, shift=(0, -1), axis=(0, 1))
-        above = np.roll(self.elevation, shift=(1, 0), axis=(0, 1))
-        below = np.roll(self.elevation, shift=(-1, 0), axis=(0, 1))
+        shifted_up = roll(self.elevation, shift=-1, axis=0)
+        shifted_down = roll(self.elevation, shift=1, axis=0)
+        shifted_left = roll(self.elevation, shift=-1, axis=1)
+        shifted_right = roll(self.elevation, shift=1, axis=1)
 
         # Check if the elevation is strictly less than its neighbors
-        result = self.elevation < left
-        result &= self.elevation < right
-        result &= self.elevation < above
-        result &= self.elevation < below
+        result = self.elevation < shifted_left
+        result = np.logical_and(result, self.elevation < shifted_right)
+        result = np.logical_and(result, self.elevation < shifted_up)
+        result = np.logical_and(result, self.elevation < shifted_down)
 
         return result
 
     def compute_extrema(self):
         self.extrema = {}
-        max_positions = np.argwhere(self.max_elevation())
-        min_positions = np.argwhere(self.min_elevation())
-        for pos in max_positions:
-            self.extrema[tuple(pos[::-1])] = 'max'
-        for pos in min_positions:
-            self.extrema[tuple(pos[::-1])] = 'min'
+        max_positions = self.max_elevation()
+        for i in range(len(max_positions)):
+            for j in range(len(max_positions[i])):
+                if max_positions[i][j]:
+                    self.extrema[(j, i)] = 'max'
+
+        min_positions = self.min_elevation()
+        for i in range(len(min_positions)):
+            for j in range(len(min_positions[i])):
+                if min_positions[i][j]:
+                    self.extrema[(j, i)] = 'min'
 
     def interpolate_gradient(self, x, y):
         self.compute_gradient()
@@ -121,58 +136,59 @@ class Terrain:
         return bilinear_interpolate(alpha, beta, f_00, f_01, f_10, f_11)
 
 
-#working
-#for init test
-# t = Terrain(ramp_x, 2, 3)
-# print(t.elevation)
-# print(t.row_mesh)
-# print(t.col_mesh)
+# #working
+print("\nfor init test\n**************")
+t = Terrain(ramp_x, 2, 3)
+print(t.elevation)
+print(t.row_mesh)
+print(t.col_mesh)
+
+# #working
+print("\nfor add test\n**************")
+t = Terrain(ramp_x, 2, 5)
+t2 = Terrain(ramp_y, 2, 5)
+print(t.elevation)
+print(t2.elevation)
+t.add(t2)
+print(t.elevation)
+t2.add(t, '-')
+print(t2.elevation)
+
+# #working
+print("\nfor threshold_elevation test\n**************")
+t = Terrain(ramp_x, 2, 5)
+print(t.elevation)
+print(t.threshold_elevation(2))
+
+# #working
+print("\nfor compute_gradient test\n**************")
+t = Terrain(ramp_x, 4, 5)
+t.compute_gradient()
+print(t.gradient)
+t = Terrain(ramp_y, 4, 5)
+t.compute_gradient()
+print(t.gradient)
 
 #working
-#for add test
-# t = Terrain(ramp_x, 2, 5)
-# t2 = Terrain(ramp_y, 2, 5)
-# print(t.elevation)
-# print(t2.elevation)
-# t.add(t2)
-# print(t.elevation)
-# t2.add(t, '-')
-# print(t2.elevation)
+print("\nfor threshold_magnitude_gradient test\n**************")
+t = Terrain(f_sum_x_y, 5, 5)
+print(t.elevation)
+t.compute_gradient()
+print(t.gradient)
+print(t.threshold_magnitude_gradient(1.8))
+
+# #working
+print("\nfor max_elevation test\n**************")
+t = Terrain(f_sum_x_y, 3, 4)
+print(t.max_elevation())
 
 #working
-#for threshold_elevation test
-# t = Terrain(ramp_x, 2, 5)
-# print(t.elevation)
-# print(t.threshold_elevation(2))
+print("\nfor min_elevation test\n**************")
+t = Terrain(f_sum_x_y, 3, 4)
+print(t.min_elevation())
 
 #working
-# for compute_gradient test
-# t = Terrain(ramp_x, 4, 5)
-# t.compute_gradient()
-# print(t.gradient)
-# t = Terrain(ramp_y, 4, 5)
-# t.compute_gradient()
-# print(t.gradient)
-
-#working
-#for threshold_magnitude_gradient test
-# t = Terrain(f_sum_x_y, 5, 5)
-# print(t.elevation)
-# t.compute_gradient()
-# print(t.gradient)
-# print(t.threshold_magnitude_gradient(1.8))
-
-#working
-#for max_elevation
-# t = Terrain(f_sum_x_y, 3, 4)
-# print(t.max_elevation())
-
-#working
-#for min_elevation test
-# t = Terrain(f_sum_x_y, 3, 4)
-# print(t.min_elevation())
-
-#for compute_extrema test
+print("\nfor compute_extrema test\n**************")
 t = Terrain(egg_carton, 32, 32)
 t.compute_extrema()
 print(t.extrema == {(4, 4): 'max', (20, 4): 'max', (4, 20): 'max', (20, 20): 'max',
@@ -182,23 +198,22 @@ t = Terrain(g, 64, 64)
 t.compute_extrema()
 print(t.extrema == {(15, 20): 'max', (63, 63): 'min'})
 
-#working
-#for interpolate_elevation test
-# t = Terrain(ramp_y, 5, 5)
-# print(t.elevation[3:5, 2:4])
-# print(t.interpolate_elevation(3.75, 2.25))
+# #working
+print("\nfor interpolate_elevation test\n**************")
+t = Terrain(ramp_y, 5, 5)
+print(t.interpolate_elevation(3.75, 2.25))
 
-#working
-# for interpolate_gradient test
-# t = Terrain(ramp_x, 6, 6)
-# print(t.interpolate_gradient(2.75, 3.25))
-# t = Terrain(ramp_y, 6, 6)
-# print(t.interpolate_gradient(2.75, 3.25))
+# #working
+print("\nfor interpolate_gradient test\n**************")
+t = Terrain(ramp_x, 6, 6)
+print(t.interpolate_gradient(2.75, 3.25))
+t = Terrain(ramp_y, 6, 6)
+print(t.interpolate_gradient(2.75, 3.25))
 
-#working
-#for bilinear_interpolate test
-# t = Terrain(ramp_x)
-# print(bilinear_interpolate(.25, 0, 1, 2, 3, 4))
-# print(bilinear_interpolate(0, .25, 1, 2, 3, 4))
-# print(bilinear_interpolate(1, .75, 1, 2, 3, 4))
-# print(bilinear_interpolate(.5, .75, 1, 2, 3, 4))
+# #working
+print("\nfor bilinear_interpolate test\n**************")
+t = Terrain(ramp_x)
+print(bilinear_interpolate(.25, 0, 1, 2, 3, 4))
+print(bilinear_interpolate(0, .25, 1, 2, 3, 4))
+print(bilinear_interpolate(1, .75, 1, 2, 3, 4))
+print(bilinear_interpolate(.5, .75, 1, 2, 3, 4))
