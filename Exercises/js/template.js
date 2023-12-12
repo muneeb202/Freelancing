@@ -87,6 +87,41 @@ module.exports = {
         }
     },
 
+    // Exercise 3 - Basic Statistics
+    exercise3: (l) => {
+        const performCalculations = (arr) => {
+            var resultArray = []
+            var min = Math.min.apply(null,arr)
+            var max = Math.max.apply(null,arr)
+            var sum = 0, avg = 0;
+            var sortedArray =  arr.sort(function(a, b){return a - b});
+            var arraySize = arr.length
+            let middleIndex = Math.floor(arraySize / 2);
+            for (var i of arr) {
+                sum += i;
+            }
+            avg = sum / arraySize;
+            let median;
+            if(arraySize % 2 != 0) {         //if length is odd, return middle element
+                median = sortedArray[middleIndex];
+            }
+            else {                         //else calculate average of central values
+                median = (sortedArray[middleIndex] + sortedArray[middleIndex - 1]) / 2;
+            }
+            resultArray.push(min, avg, median, max)
+            return resultArray
+        }
+        const result=[]
+        var array1 =[]
+        array1 = performCalculations(l)
+        result.push(array1)
+        var squaredArray = l.map(x => x*x);
+        var array2 = performCalculations(squaredArray)
+        result.push(array2)
+
+        return result
+    },
+
 
 }
 
