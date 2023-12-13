@@ -188,6 +188,33 @@ module.exports = {
         return result
     },
 
+    // Exercise 6 - List Depth
+    exercise6: (l) => {
+        let depthCount= Array.isArray(l)       //check for valid array format
+        if(depthCount == true){
+            depthCount = 1
+        }
+        else{
+            depthCount = 0
+        }
+
+        while (Array.isArray(l)) {
+          for (let eachElement of l) {
+            if (Array.isArray(eachElement)) {
+              if(Array.isArray(eachElement) && eachElement.length != 0){
+                l = eachElement;
+              }
+              depthCount++;
+              break;
+            }
+            else {
+              l = eachElement;
+            }
+          }
+        }
+        return depthCount;
+    },
+
 
 }
 
