@@ -136,7 +136,58 @@ module.exports = {
         return output
     },
 
-    
+    // Exercise 5 - Document Stats
+    exercise5: (filename) => {
+        let result = []
+        const {readFileSync} = require('fs');
+
+        function syncReadFile(filename) {
+        const arr = readFileSync(filename, 'utf-8');
+        return arr;
+        }
+       
+        let arr= syncReadFile("test_data/text1.txt")
+        let str = arr.toString()
+
+        //Counting number of letters
+        const lettersArray= str.replace(/[^a-zA-Z]/gi,''); 
+        result.push(lettersArray.length)
+        
+        //Counting number of numeric characters
+        const numArray= str.replace(/\D/g, ''); 
+        result.push(numArray.length)
+
+        //Counting number of symbol characters
+        var symbolCharCount = str.match(/[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g).length;
+        result.push(symbolCharCount)
+
+        //Counting number of words
+        var words = str.split(/\w+/)
+        var wordCount = 0
+        for(w of words){
+            if(w != ""){
+                wordCount++;
+            }
+        }
+        result.push(wordCount)
+
+        
+        //Counting number of sentences
+        var sentences = str.split(".").filter(s => s).length;
+        result.push(sentences)
+
+        //Counting number of paragraphs
+        var split_str = str.split(/\n/);
+        var paragraphs = 1;
+        for(x of split_str){
+            if(x == "\S[\n][\n]+"){
+                paragraphs++;
+            }
+        }
+        result.push(paragraphs)
+        return result
+    },
+
 
 }
 
