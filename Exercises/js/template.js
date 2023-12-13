@@ -122,6 +122,21 @@ module.exports = {
         return result
     },
 
+    // Exercise 4 - Finite-State Machine Simulator
+    exercise4: (trans, init_state, input_list) => {
+        let output = []
+        let out = []
+        let curr = init_state + '/' + input_list[0]
+        for (let inp of input_list){
+            curr = curr.slice(0, 2) + inp
+            out = trans[curr]
+            output.push(out[2])
+            curr = out
+        }
+        return output
+    },
+
+    
 
 }
 
