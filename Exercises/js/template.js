@@ -352,7 +352,146 @@ module.exports = {
         return count;
     },
 
+    // Exercise 10 - One Step of Wordle
+    exercise10: (green,yellow,gray) => {
+        function wordle(green, yellow, gray ){
+            const {readFileSync} = require('fs');
+
+            function syncReadFile(filename) {
+            const arr = readFileSync(filename, 'utf-8');
+            return arr;
+            }
     
+            let arr= syncReadFile("test_data/wordle.txt")
+            let fileContents = arr.toString()
+            wordleWords = fileContents.split("\n")
+            wordleWords = wordleWords.map((word)=>{
+                return word.replace("\r","")
+            })
+            var keysList = Object.keys(green);
+            var yellowKeyList = Object.keys(yellow);
+            var count = 0;
+            var wordle_set = []
+            for(eachWord of wordleWords){
+                var check1 = true
+                var check2 = true
+                var check3 = true
+                for(x of yellowKeyList){
+                    if(!eachWord.split("").includes(x)){
+                        check2 = false
+                        break
+                    }
+                }
+    
+                var characters = eachWord.split("")
+                for(var i = 0; i < characters.length; i++){
+                    if(gray.has(characters[i])){
+                        check1 = false
+                        break
+                    }
+    
+                    if(yellowKeyList.includes(characters[i]) && yellow[characters[i]].has(i)){
+                        
+                        check2 = false
+                        break
+                    }
+                    
+                    if(keysList.includes(String(i))){
+                        if(characters[i] != green[String(i)]){
+                            check3 = false
+                        }
+                    }
+    
+                    if(i == eachWord.length - 1 && check1 && check2 && check3){
+                        wordle_set.push(eachWord)
+                    }
+                }
+            }
+            return wordle_set
+           }
+
+           wordle_set = wordle(green, yellow, gray)
+
+           for(var i = 0 ; i < wordle_set.length ; i++){
+                for(var j = 0 ; j < wordle_set.length ; j++){
+                    if(wordle_set[i] != wordle_set[j]){
+                        for(var k = 0 ; k < 5 ; k++){
+                            if(wordle_set[i].split("")[k] == wordle_set[j].split("")[k]){
+                                
+                                green[k] = wordle_set[i].split("")[k]
+                            }
+
+                            if(wordle_set[i].split("")[k] != wordle_set[j].split("")[k] && wordle_set[j].split("").includes(wordle_set[i].split("")[k])){
+                        
+                                if(yellow[wordle_set[i].split("")[k]] && !yellow[wordle_set[i].split("")[k]].includes(k)){
+
+                                    yellow[wordle_set[i].split("")[k]].add(k)
+                                }
+                                else{
+                                    yellow[wordle_set[i].split("")[k]] = [k]
+                                }
+                            }
+
+                            if(wordle_set[i].split("")[k] != wordle_set[j].split("")[k] && !wordle_set[j].split("").includes(wordle_set[i].split("")[k])){
+                                if(!gray.has(wordle_set[i].split("")[k]))
+                                    gray.add(wordle_set[i].split("")[k])
+                                    
+                            }
+                        }
+                    }
+                }
+           }
+
+           function new_wordle(green, yellow, gray, wordleWords){
+            
+            var keysList = Object.keys(green);
+            var yellowKeyList = Object.keys(yellow);
+            var count = 0;
+            var wordle_set = []
+            var lowest_cardinality = 0;
+            for(eachWord of wordleWords){
+                var cardinality = 0
+                for(x of yellowKeyList){
+                    if(!eachWord.split("").includes(x)){
+                        cardinality++
+                    }
+                }
+                var characters = eachWord.split("")
+                for(var i = 0; i < characters.length; i++){
+                    if(gray.has(characters[i])){    
+                        cardinality++;
+                    }
+    
+                    if(yellowKeyList.includes(characters[i]) && yellow[characters[i]].has(i)){
+                        
+                        cardinality++
+                    }
+                    
+                    if(keysList.includes(String(i))){
+                        if(characters[i] != green[String(i)]){
+                            cardinality++
+                        }
+                    }
+    
+                    if(i == eachWord.length - 1){
+                        if(lowest_cardinality == 0 || lowest_cardinality > cardinality){
+                            lowest_cardinality = cardinality
+                        }
+                        wordle_set.push([eachWord, cardinality])
+                    }
+                }
+            }
+            var words_set = []
+            for(set of wordle_set){
+                if(set[1] == lowest_cardinality){
+                    words_set.push(set[0])
+                }
+            }
+            return words_set
+           }
+
+           return new_wordle(green, yellow, gray, wordle_set)
+    },
 
 }
 
