@@ -250,7 +250,53 @@ module.exports = {
             return true
     },
 
+    // Exercise 8 - Five Letter Unscramble
+    exercise8: (s) => {
+        let wordCount = 0
+        let allUniqueWords = []
+
+        var tree = function(leafs) {
+            var branches = [];
+            if (leafs.length == 1) return leafs;
+            for (var k in leafs) {
+              var leaf = leafs[k];
+              tree(leafs.join('').replace(leaf, '').split('')).concat("").map(function(subtree) {
+                branches.push([leaf].concat(subtree));
+              });
+            }
+            return branches;
+        };
+        var permutations = tree(s.split("")).map((word)=>{
+            return word.join("")
+        })
+
+        permutations = permutations.filter(function(item, pos, self) {
+            return self.indexOf(item) == pos;
+        })
+        const {readFileSync} = require('fs');
+        
+        function syncReadFile(filename) {
+            const arr = readFileSync(filename, 'utf-8');
+            return arr;
+        }
+
+        let arr= syncReadFile("test_data/wordle.txt")
+        let fileContents = arr.toString()
+        wordleWords = fileContents.split("\n")
+        wordleWords = wordleWords.map((word)=>{
+            return word.replace("\r","")
+        })
+        var count = 0;
+        for(word of permutations){
+            if(wordleWords.includes(word)){
+                count++;
+            }
+        }
+        return count;
+    },
+
     
+
 }
 
 
