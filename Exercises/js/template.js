@@ -295,6 +295,63 @@ module.exports = {
         return count;
     },
 
+    // Exercise 9 - Wordle Set
+    exercise9: (green,yellow,gray) => {
+        const {readFileSync} = require('fs');
+
+        function syncReadFile(filename) {
+        const arr = readFileSync(filename, 'utf-8');
+        return arr;
+        }
+
+        let arr = syncReadFile("test_data/wordle.txt")
+        let fileContents = arr.toString()
+        wordleWords = fileContents.split("\n")
+        wordleWords = wordleWords.map((word)=>{
+            return word.replace("\r","")
+        })
+
+        var keysList = Object.keys(green);
+        var yellowKeyList = Object.keys(yellow);
+        var count = 0;
+        for(eachWord of wordleWords){
+            var check1 = true
+            var check2 = true
+            var check3 = true
+            for(x of yellowKeyList){
+                if(!eachWord.split("").includes(x)){
+                    check2 = false
+                    break
+                }
+            }
+
+            var characters = eachWord.split("")
+            for(var i = 0; i < characters.length; i++){
+                if(gray.has(characters[i])){
+                    check1 = false
+                    break
+                }
+
+                if(yellowKeyList.includes(characters[i]) && yellow[characters[i]].has(i)){
+                    
+                    check2 = false
+                    break
+                }
+                
+                if(keysList.includes(String(i))){
+                    if(characters[i] != green[String(i)]){
+                        check3 = false
+                    }
+                }
+
+                if(i == eachWord.length - 1 && check1 && check2 && check3){
+                    count++;
+                }
+            }
+        }
+        return count;
+    },
+
     
 
 }
