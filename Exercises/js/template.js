@@ -215,7 +215,42 @@ module.exports = {
         return depthCount;
     },
 
+    // Exercise 7 - Change, please
+    exercise7: (amount,coins) => {
+        let arr = [200, 100, 50, 20, 10, 5, 2, 1]
+        let amountInPence = amount * 100
 
+
+        const buildCombinations = (arr, num) => {
+            const res = [];
+            let temp, i, j, max = 1 << arr.length;
+            for(i = 0; i < max; i++){
+               temp = [];
+               for(j = 0; j < arr.length; j++){
+                for(k = 0; k < arr.length; k++){
+
+                    if (i & 1 << j){
+                        temp.push(arr[j]);
+                        break
+                    };
+                }
+               };
+               if(temp.length === num){
+                  res.push(temp.reduce(function (a, b) { return a + b; }));
+               };
+            };
+            return res;
+         }
+
+        let result = buildCombinations(arr, coins)
+
+        if (result.length == 0)
+            return false
+        else
+            return true
+    },
+
+    
 }
 
 
