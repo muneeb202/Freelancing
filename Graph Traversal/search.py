@@ -130,3 +130,59 @@ def dfs(stack):
             stack.append((move(puzzle.copy(), 1), tup, moves + 1)) 
 
 
+
+def dls(maxdepth, stack):
+    stack.append((start, None, 1, ''))                          # add start state to stack (state, predecessor, depth, move)
+    end = True                                                  # True: no goal possible, False: Goal not found at current depth
+
+    while True:
+        if len(stack) == 0:                                     # if stack empty, return status of end
+            return None, end
+
+        puzzle, prev, depth, step = stack.pop()                 # traverse next state
+        tup = tuple(puzzle)
+
+        if tup in visited:                                      # state already visited
+            _, _, old_depth = visited[tup]                      # get depth of already visited state
+            if old_depth < depth:                               # if older path was shorter, ignore state. Else shorter path found
+                continue
+
+        visited[tup] = (prev, step, depth)                      # mark state as visited
+
+        if puzzle == goal:                                      # if goal found, return ending state
+            return tup, False 
+        
+        if depth + 1 > maxdepth:                                # if current depth is max
+            end = False                                         # do not end search
+            continue                                            # instead, dont visit children (below max depth)
+
+        if puzzle[-1] > 2:                                      # move up 
+            stack.append((move(puzzle.copy(), -3), tup, depth + 1, 'U '))  
+
+        if puzzle[-1] < 6:                                      # move down
+            stack.append((move(puzzle.copy(), 3), tup, depth + 1, 'D '))   
+
+        if puzzle[-1] % 3 != 0:                                 # move left
+            stack.append((move(puzzle.copy(), -1), tup, depth + 1, 'L '))
+
+        if (puzzle[-1] + 1) % 3 != 0:                           # move right
+            stack.append((move(puzzle.copy(), 1), tup, depth + 1, 'R ')) 
+
+
+
+def ids():
+    st = time.time()
+    count = 0                                                   # current max depth
+    while True:
+        count += 1                                              # increase depth
+        visited.clear()                                         # clear visited states, i.e. start anew
+        result, end = dls(count, [])                            # try finding goal till current max depth
+        
+        if result != None:                                      # if goal found
+            total, path = print_path(result)                    # print solution path
+            print(f'\nTotal moves -> {total}\nPath        -> {path}\nTime Taken  -> {time.time() - st}')
+            break
+        elif end == True:                                       # if unable to go beyond current max depth i.e. no goal possible
+            print('Max depth reached! Goal Not Found')
+            break
+
