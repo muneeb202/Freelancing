@@ -91,3 +91,42 @@ def bfs(queue):
             queue.append((move(puzzle.copy(), 1), tup, 'R '))  
  
 
+
+def dfs(stack):
+    st = time.time()
+    stack.append((start, None, 0))                              # add start state to the stack (state, predecessor, moves so far)
+
+    while True:
+        if len(stack) == 0:                                     # if no more possible moves, no goal found
+            print('Goal Not Found!')                    
+            break
+        
+        puzzle, prev, moves = stack.pop()                       # get next state to be traversed
+        tup = tuple(puzzle)
+
+        if tup in visited:                                      # state already visited
+            continue
+
+        visited[tup] = prev                                     # mark state as visited
+
+        if puzzle == goal:                                      # goal reached
+            print(f'Total moves -> {moves}\nTime Taken  -> {time.time() - st}')
+            # print(f'\nTotal moves -> {print_path(tup)}')
+            # while visited[tup] is not None:
+            #     print_arr(tup)
+            #     tup = visited[tup]
+            break
+
+        if puzzle[-1] % 3 != 0:                                 # move left
+            stack.append((move(puzzle.copy(), -1), tup, moves + 1)) 
+
+        if puzzle[-1] < 6:                                      # move down
+            stack.append((move(puzzle.copy(), 3), tup, moves + 1))   
+
+        if puzzle[-1] > 2:                                      # move up 
+            stack.append((move(puzzle.copy(), -3), tup, moves + 1))   
+
+        if (puzzle[-1] + 1) % 3 != 0:                           # move right
+            stack.append((move(puzzle.copy(), 1), tup, moves + 1)) 
+
+
