@@ -186,3 +186,50 @@ def ids():
             print('Max depth reached! Goal Not Found')
             break
 
+
+if __name__ == '__main__':
+
+    try:
+        while len(start := [int(n) for n in input('\nEnter start state > ')]) != 9:
+            print('Enter 9 digits! Try Again\n')
+    except ValueError:
+        print('Enter 9 digits! Try Again\n')
+    
+    try:
+        while len(goal := [int(n) for n in input('\nEnter goal state  > ')]) != 9:
+            print('Enter 9 digits! Try Again\n')
+    except ValueError:
+        print('Enter 9 digits! Try Again\n')
+
+    for i, n in enumerate(start):
+        if n == 0:
+            start.append(i)
+            break
+
+    for i, n in enumerate(goal):
+        if n == 0:
+            goal.append(i)
+            break
+
+
+    print('\n------ Initial State ------\n')
+    print_arr(start)
+    opt = input('\nEnter 1 to generate random new state > ')
+    if opt == '1':
+        start = random_start()
+        print('\n------ New Initial State ------\n')
+        print_arr(start)
+
+    while True:
+        print('\n\n------ Menu ------\n1 -> Breadth First Search\n2 -> Depth First Search\n3 -> Iterative Deepening Search\n4 -> Exit')
+        opt = input('\nEnter Option > ').strip()
+
+        if opt == '1':
+            bfs([])
+        elif opt == '2':
+            dfs([])
+        elif opt == '3':
+            ids()
+        else:
+            break
+        visited.clear()
