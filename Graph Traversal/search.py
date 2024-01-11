@@ -53,3 +53,41 @@ def move(puzzle, step):                                         # move blank til
     puzzle[-1] += step                                          # update position of blank tile
     return puzzle                                               # return update state
 
+
+
+def bfs(queue):
+    st = time.time()
+    queue.append((start, None, ''))                             # add start state to queue (state, predecessor, move)
+    first = 0                                                   # queue head position
+    while True:
+        if len(queue) == first:
+            print('Goal Not Found!')
+            break
+
+        puzzle, prev, path = queue[first]                       # get next state to be traversed
+        tup = tuple(puzzle)
+        first += 1
+        
+        if tup in visited:                                      # state already visited
+            continue
+
+        visited[tup] = (prev, path)                             # mark state as visited
+
+        if puzzle == goal:                                      # goal reached
+            total, path = print_path(tup)
+            print(f'\nTotal moves -> {total}\nPath        -> {path}\nTime Taken  -> {time.time() - st}')
+            break
+
+        if puzzle[-1] > 2:                                      # move up 
+            queue.append((move(puzzle.copy(), -3), tup, 'U '))    
+
+        if puzzle[-1] < 6:                                      # move down
+            queue.append((move(puzzle.copy(), 3), tup, 'D '))  
+
+        if puzzle[-1] % 3 != 0:                                 # move left
+            queue.append((move(puzzle.copy(), -1), tup, 'L '))  
+
+        if (puzzle[-1] + 1) % 3 != 0:                           # move right
+            queue.append((move(puzzle.copy(), 1), tup, 'R '))  
+ 
+
