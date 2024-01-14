@@ -52,3 +52,51 @@ def move(puzzle, step):                                         # move blank til
     puzzle[-1] += step                                          # update position of blank tile
     return puzzle                                               # return update state
 
+
+def heuristic(arr):
+    total = 0
+    for i in range(len(arr) - 1):
+        total += abs((arr[i] // SIZE) - (i//SIZE)) + abs((arr[i] % SIZE) - (i % SIZE))      # sum of manhattan distance of each number from goal
+    return total
+
+
+def BestFirstSearch():
+    openlist = PriorityQueue()
+    openlist.put((0, start, None, ''))                              # f(n), g(n), state, predecessor, Path
+    states = 0
+
+    while True:
+        if openlist.empty():
+            print('Goal Not Found!')
+            break
+
+        _, puzzle, prev, path = openlist.get()                 # get next state to be traversed
+        tup = tuple(puzzle)
+
+        if tup in visited:                                      # state already visited
+            continue
+        states += 1
+
+        visited[tup] = (prev, path)                             # mark state as visited
+
+        if puzzle == goal:                                      # goal reached
+            total, path = print_path(tup)
+            print(f'\nTotal Visited : {states}\nTotal moves -> {total}\nPath        -> {path}')
+            break
+
+        if puzzle[-1] > 2:                                      # move up
+            nextmove = move(puzzle.copy(), -3)
+            openlist.put((heuristic(nextmove), nextmove, tup, 'U '))
+
+        if puzzle[-1] < 6:                                      # move down
+            nextmove = move(puzzle.copy(), 3)
+            openlist.put((heuristic(nextmove), nextmove, tup, 'D '))
+
+        if puzzle[-1] % 3 != 0:                                 # move left
+            nextmove = move(puzzle.copy(), -1)
+            openlist.put((heuristic(nextmove), nextmove, tup, 'L '))
+
+        if (puzzle[-1] + 1) % 3 != 0:                           # move right
+            nextmove = move(puzzle.copy(), 1)
+            openlist.put((heuristic(nextmove), nextmove, tup, 'R '))
+
