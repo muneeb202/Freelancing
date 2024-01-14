@@ -100,3 +100,45 @@ def BestFirstSearch():
             nextmove = move(puzzle.copy(), 1)
             openlist.put((heuristic(nextmove), nextmove, tup, 'R '))
 
+
+def AStarSearch():
+    openlist = PriorityQueue()
+    openlist.put((0, 0, start, None, ''))                       # f(n), g(n), state, predecessor, Path
+    states = 0
+
+    while True:
+        if openlist.empty():
+            print('Goal Not Found!')
+            break
+
+        _, cost, puzzle, prev, path = openlist.get()            # get next state to be traversed
+        tup = tuple(puzzle)
+        cost += 1
+
+        if tup in visited:                                      # state already visited
+            continue
+        states += 1
+
+        visited[tup] = (prev, path)                             # mark state as visited
+
+        if puzzle == goal:                                      # goal reached
+            total, path = print_path(tup)
+            print(f'\nTotal Visited : {states}\nTotal moves -> {total}\nPath        -> {path}')
+            break
+
+        if puzzle[-1] > 2:                                      # move up
+            nextmove = move(puzzle.copy(), -3)
+            openlist.put((cost + heuristic(nextmove), cost, nextmove, tup, 'U '))
+
+        if puzzle[-1] < 6:                                      # move down
+            nextmove = move(puzzle.copy(), 3)
+            openlist.put((cost + heuristic(nextmove), cost, nextmove, tup, 'D '))
+
+        if puzzle[-1] % 3 != 0:                                 # move left
+            nextmove = move(puzzle.copy(), -1)
+            openlist.put((cost + heuristic(nextmove), cost, nextmove, tup, 'L '))
+
+        if (puzzle[-1] + 1) % 3 != 0:                           # move right
+            nextmove = move(puzzle.copy(), 1)
+            openlist.put((cost + heuristic(nextmove), cost, nextmove, tup, 'R '))
+
