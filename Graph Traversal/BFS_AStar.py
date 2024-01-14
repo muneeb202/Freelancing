@@ -142,3 +142,25 @@ def AStarSearch():
             nextmove = move(puzzle.copy(), 1)
             openlist.put((cost + heuristic(nextmove), cost, nextmove, tup, 'R '))
 
+
+if __name__ == '__main__':
+
+    while True:
+        print('\n------ Initial State ------\n')
+        print_arr(start)
+        opt = input('\nEnter 1 to generate random new state > ')
+        if opt == '1':
+            start = random_start()
+            print('\n------ New Initial State ------\n')
+            print_arr(start)
+
+        print('\n\n------ Menu ------\n1 -> A Star Search\n2 -> Best First Search\n3 -> Exit')
+        opt = input('\nEnter Option > ').strip()
+
+        if opt == '1':
+            AStarSearch()
+        elif opt == '2':
+            BestFirstSearch()
+        else:
+            break
+        visited.clear()
