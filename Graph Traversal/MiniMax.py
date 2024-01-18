@@ -136,3 +136,84 @@ def shortest_distance_blue(board):
             add_queue(queue, heuristic, emptyset, board, position)
 
 
+''' recursive alpha beta pruning function for AI optimal move'''
+
+def alpha_beta_pruning(board, move, alpha, beta, maxPlayer, depth):
+    (red, rmoves), (blue, bmoves) = shortest_distance_red(board), shortest_distance_blue(board)         # get distance and empty positions for blue and red
+    if depth == 0 or blue == 0 or red == 0:                                                             # if depth is 0 or winner found
+        return (red - blue) * (depth + 1), move                                                         # return total score for state
+  
+    if maxPlayer:
+        maxValue, maxMove = -999999, None
+        for (i, j) in rmoves.union(bmoves):                                                             # best move will always be in shortest path for either player
+            board[i][j] = 2                                                                             # mark temporary move at position 
+            value, _ = alpha_beta_pruning(board, (i, j), alpha, beta, False, depth - 1)                 # call recursive function for minplayer
+            board[i][j] = 0                                                                             # unmark move
+            maxValue = max(maxValue, value)                                                             # if new best move found
+            if maxValue == value:                                                                       # save move as best move
+                maxMove = (i, j)
+            alpha = max(alpha, value)                                                                   # update alpha
+
+            if alpha > beta:                                                                            # prune unnecessary states
+                return maxValue, maxMove
+        return (maxValue, maxMove) if maxMove is not None else ((red - blue) * (depth + 1), move)       # return bestmove
+
+    minValue, minMove = 99999999, None
+    for (i, j) in rmoves.union(bmoves):
+        board[i][j] = 1
+        value, _ = alpha_beta_pruning(board, (i, j), alpha, beta, True, depth - 1)
+        board[i][j] = 0
+        minValue = min(minValue, value)
+        if minValue == value:
+            minMove = (i, j)
+        beta = min(beta, value)
+    return (minValue, minMove) if minMove is not None else ((red - blue) * (depth + 1), move)
+
+
+''' call alpha beta pruning and return result'''
+
+def minimax(board, depth):
+    return alpha_beta_pruning(board, (0, 0), -9999999, 9999999, True, depth)[1]
+
+
+''' main game loop and I/O operations '''
+
+if __name__ == '__main__':
+    boardsize, difficulty = None, None
+    opt = input('\nBoard Size:\n1 -> Small (5 x 5)\n2 -> Medium (8 x 8)\n\nEnter Option : ').strip()
+    if opt == '1':
+        boardsize = 5
+    else:
+        boardsize = 8
+
+    opt = input('\nDifficulty:\n1 -> Easy\n2 -> Hard\n\nEnter Option : ').strip()
+    if opt == '1':
+        difficulty = 1
+    else:
+        difficulty = 2
+    
+    gameboard = initialise_board(boardsize)
+    current_player = 0
+
+
+    while True:
+        os.system('cls')
+        print_board(gameboard)
+
+        if current_player % 2 == 0:
+            current_move = input('\nEnter row and column to place fence (e.g. 3 4) : ').split()
+            if not makemove(gameboard, current_move, 1):
+                print('\n *** Invalid Move, Try Again ***')
+                time.sleep(1)
+                continue
+        else:
+            current_move = minimax(gameboard, difficulty)
+            makemove(gameboard, current_move, 2)
+
+        if (current_player % 2 == 0 and shortest_distance_red(gameboard)[0] == 0) or (current_player % 2 == 1 and shortest_distance_blue(gameboard)[0] == 0):
+            os.system('cls')
+            print_board(gameboard)
+            print('\n\n*** '+ ('BLUE' if current_player % 2 else 'RED') + ' WINS ***\n')
+            break
+        current_player += 1
+        print('\n')
