@@ -84,3 +84,55 @@ def add_queue(queue, cost, empty, board, position):
         queue.put((cost, position, empty))
 
 
+''' return shortest possible distance for red to win (A*) '''
+
+def shortest_distance_red(board):
+    queue = PriorityQueue()
+    visited = {}
+    for i, player in enumerate(board[0]):                               # add all valid position for red at top row
+        if player != 2: add_queue(queue, 0, set(), board, (0, i))
+
+    while True:
+        if queue.empty():                                               # if no path found
+            return 100, set()
+
+        heuristic, (row, col), emptyset = queue.get()                   # get current position
+
+        if (row, col) in visited:                                       # skip if visited
+            continue
+
+        visited[(row, col)] = True                                      # mark position as visited
+
+        if row == len(board) - 1:                                       # if reached bottom row, path is shortest
+            return heuristic, emptyset
+
+        for position in emptyPositions(board, visited, 1, row, col):    # add all valid positions from current position
+            add_queue(queue, heuristic, emptyset, board, position)
+
+
+''' return shortest possible distance for blue to win (A*) '''
+
+def shortest_distance_blue(board):
+    queue = PriorityQueue()
+    visited = {}
+    for i in range(0, len(board), 2):                                   # add all valid positions for blue from left side
+        if board[i][0] != 1: add_queue(queue, 0, set(), board, (i, 0))
+
+    while True:
+        if queue.empty():
+            return 100, set()
+
+        heuristic, (row, col), emptyset = queue.get()
+
+        if (row, col) in visited:
+            continue
+
+        visited[(row, col)] = True
+
+        if col == len(board[0]) - 1:                                    # if reached right side, return distance and empty positions
+            return heuristic, emptyset
+
+        for position in emptyPositions(board, visited, 2, row, col):    # add valid positions
+            add_queue(queue, heuristic, emptyset, board, position)
+
+
