@@ -215,3 +215,168 @@ def update_course(courses):
     
     print('Course has been updated successfully')
 
+
+def register_student(courses, students):
+    try:
+        crn = int(input('Enter course CRN: ').strip())
+    except ValueError:
+        print('Invalid CRN entered!')
+        return
+
+    for course in courses:
+        if course[0] == crn:                                                        # if course found
+
+            if course[5] - course[6] == 0:                                          # no available space
+                print('This course is full! Cannot register student')
+                break
+            
+            course[6] += 1                                                          # increment registered students
+            std_id = input('Enter Student\'s ID: ')
+            std_name = input('Enter Student\'s name: ')
+
+            found = False
+            for student in students:
+                if student[0] == crn and student[1] == std_id:                      # student already registered in course 
+                    print(f'Student {student[1]} is already registered in this course')
+                    found = True
+                    break
+            
+            if found:                                                               # do not register if already exists
+                break
+
+            students.append([course[0], std_id, std_name])                          # add new student to already existing students
+            print(f'Student {std_id}, {std_name} has been registered in {course[3]} Successfully!')
+            break
+    else:
+        print('Course does not exist!')
+
+
+def drop_student(courses, students):
+    try:
+        crn = int(input('Enter course CRN: ').strip())
+    except ValueError:
+        print('Invalid CRN entered!')
+        return
+
+    std_id = input('Enter Student\'s ID: ')
+    index = 0
+
+    for student in students:
+
+        if student[0] == crn and student[1] == std_id:                              # if student found
+            for course in courses:
+
+                if course[0] == student[0]:                                         # if course found
+                    opt = input('Are you sure you want to drop this student from this course [Y/N]? ').strip()
+                    if opt.lower() == 'y':
+                        course[6] -= 1                                              # decrement registered students
+                        students.pop(index)                                         # remove student from existing students
+                        print(f'Student {student[1]}, {student[2]} has been dropped from {course[3]} Successfully!')
+                        break
+            break
+        index += 1
+    else:
+        print('Course does not exist or student is not registered in that course!')
+
+
+def output_to_file(courses, students):
+
+    file = open("coursesInfo.txt", "w")                         # open course file for writing (erasing previous data)
+    for course in courses:
+        curr = 0
+        for item in course:
+            file.write(str(item))                               # write each course detail, comma separated
+            if curr != 6:                                       # do not write comma at end
+                file.write(',')     
+            curr += 1
+        file.write('\n')                                        # write to next line
+    file.close()                                                # close file
+
+    file = open("registeredStudents.txt", "w")                  # open students file
+    for student in students:
+        curr = 0
+        for item in course:                                     # write each students details to file
+            file.write(str(item))                           
+            if curr != 2:   
+                file.write(',')
+            curr += 1
+        file.write('\n')
+    file.close()
+    
+
+def read_files():
+    courses = []                                                # list of courses
+    students = []                                               # list of students
+    correct = True                                              # data must be in correct format
+
+    try:
+        file = open("coursesInfo.txt")                          # open course file
+        for line in file:
+            course = line.strip().split(',')                    # split line by comma
+            if len(course) != 7:                                # must have 7 items
+                correct = False                                 # incorrect format
+            course[0] = int(course[0])                          # course number is integer
+            course[2] = int(course[2])                          # section number is integer
+            course[5] = int(course[5])                          # section size is integer
+            course[6] = int(course[6])                          # number of registered to students is integer
+            courses.append(course)                              # add course to list
+        file.close()
+
+        file = open("registeredStudents.txt")                   # open student file
+        for line in file:
+            student = line.strip().split(',')
+            if len(student) != 3:                               # must have 3 items
+                correct = False                                 # incorrect format
+            student[0] = int(student[0])                        # course number is integer
+            students.append(student)                            # add student to list of students
+        file.close()
+
+    except (ValueError, IndexError):                            # incorrect data / format
+        correct = False
+    except FileNotFoundError:                                   # file does not exist
+        return courses, students, correct                       # return empty lists
+    
+    return courses, students, correct                           # return list of courses and students
+
+
+def main():
+
+    courses, students, correct = read_files()                   # get course and student list
+
+    if not correct:
+        print('File in Incorrect format')                       # cannot perform further processing if data in incorrect format
+        return
+
+    while True:
+        opt = menu()                                            # print and get menu option
+
+        if opt == 1:                                            # display course information
+            course_info(courses)
+
+        elif opt == 2:                                          # search for courses
+            search_course(courses)
+
+        elif opt == 3:                                          # add a new course
+            add_course(courses)
+
+        elif opt == 4:                                          # remove a course
+            remove_course(courses)
+
+        elif opt == 5:                                          # update a course
+            update_course(courses)
+
+        elif opt == 6:                                          # register a new student
+            register_student(courses, students)
+
+        elif opt == 7:                                          # drop an existing student
+            drop_student(courses, students)
+
+        else:                                                   # exit menu
+            print('\nProgram Finished!\n')
+            break 
+        print()
+    
+    output_to_file(courses, students)                           # output updated data to files after program finishes
+
+if __name__ == "__main__":
+    main()
