@@ -79,3 +79,61 @@ def histogram(progress, trailer, retriever, excluded):
     print("-" * 70)
 
 
+'''
+runs main loop for part 1
+'''
+def part1():
+    finish = False
+    count = [0, 0, 0, 0]                                                            # count of each progression category
+    file = open("outcomes.txt", "w")                                                # open file for writing for part 3
+
+    while not finish:                                                               # until user does not enter q
+        pass_, defer, fail  = valid_input()                                         # get input credits from user
+
+        input_list.append([pass_, defer, fail])                                     # Save data for Part 2 in list
+        file.write(str(pass_) + " " + str(defer) + " " + str(fail) + '\n')          # Save data for Part 3 in file
+
+        index, result = outcome(pass_, defer)                                       # get progression category and outcome
+        count[index] += 1                                                           # update count of progression category
+        print(result)                                                               # print the progression outcome
+
+        while not finish:                                                           # until option entered is not correct
+            opt = input("\nWould you like to enter another set of data?\nEnter 'y' for yes or 'q' to quit and view results: ").strip()
+
+            if opt == "y":                                                          # take input again
+                break
+            if opt == "q":                                                          # finish main loop
+                finish = True
+            else:                                                                   # y or n not entered, ask option again
+                print('Invalid option')
+        print()
+
+    histogram(count[0], count[1], count[2], count[3])                               # print histogram w.r.t. the count of progression categories
+    file.close()                                                                    # close the file for writing
+    
+
+'''
+Prints details regarding part 2 (from stored list)
+'''
+def part2():
+    print("\nPart 2:")
+    for credits_ in input_list:                                                     # print outcome and credits for each student in stored list
+        print(f"{outcome(credits_[0], credits_[1])[1]} - {credits_[0]}, {credits_[1]}, {credits_[2]}")
+
+'''
+Prints details regarding part 3 (from text file)
+'''
+def part3():
+    print("\nPart 3:")
+    file = open("outcomes.txt")                                                     # open file for reading input
+    for line in file:                                                               # for each line in input file
+        tokens = line.split()                                                       # split the line into separate tokens
+        pass_, defer, fail = int(tokens[0]), int(tokens[1]), int(tokens[2])         # convert the tokens to int
+        
+        print(f"{outcome(pass_, defer)[1]} - {pass_}, {defer}, {fail}")             # print outcome and credits
+
+
+if __name__ == "__main__":
+    part1()
+    part2()
+    part3()
