@@ -1,0 +1,146 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Paper Trader</title>
+    <link rel="stylesheet" type="text/css" href="{% static '/styles.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@200;400&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <header class="row">
+        <h1 class="col-4 offset-5">Paper Trader</h1>
+        <div class="logout col-2">
+            <span>Welcome, Username</span>
+            <a href="#">Logout</a>
+        </div>
+    </header>
+
+    <div class="content">
+        <div class="half">
+            <form action="{% url 'paper_trader' %}" method="GET">
+                    <div class="input-group w-50">
+                        <input type="text" class="form-control" name="search_query" placeholder="Enter search query" required>
+                        <button class="btn btn-outline-secondary " type="submit">Search</button>
+                    </div>
+            </form><br>
+            
+            <form method="post" action="{% url 'paper_trader' %}" class="row">
+                {% csrf_token %}
+                <input type="hidden" id="item-type" name="item_type" value="">
+
+                <input class="col-3 offset-1 input-group-text" type="number" placeholder="Quantity" id="item-quantity" name="item_quantity" min="1" required>
+                <button style="width: 3cm;" type="submit" class="col-2 offset-3 btn btn-success" onclick="setTransactionType('buy')">Buy</button>
+                <button style="width: 3cm;" type="submit" class="col-2 offset-1 btn btn-danger" onclick="setTransactionType('sell')">Sell</button>
+            </form>
+            <img src="data:image/png;base64,{{ data_uri }}" alt="My Chart">
+        </div>
+        <div class="half">
+            <h3>Portfolio</h3><br>
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Stock</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Value</th>
+                        <th scope="col">Buy/Sell</th>
+                    </tr>
+                </thead>
+                {% if records %}
+                    <tbody class="table-group-divider">
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.id }}</td>
+                            <td>{{ record.stock }}</td>
+                            <td>{{ record.quantity }}</td>
+                            <td>{{ record.value }}</td>
+                            <td>
+                                <input type="radio" class="form-check-input offset-md-3" name="selected_stock" data-record-id="{{ record.id }}" data-stock="{{ record.stock }}" data-quantity="{{ record.quantity }}" data-value="{{ record.value }}">
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                {%endif%}
+                <tbody>
+                    <td></td>
+                    <td>Cash</td>
+                    <td></td>
+                    <td>{{ total_cash }}</td>
+                    <td></td>
+                </tbody>
+            </table>
+
+            <div id="details-section" style="display: none;">
+                <form id="buy-sell-form" method="post" action="{% url 'paper_trader' %}">
+                    {% csrf_token %}
+                    <p><strong><span id="details-stock"></strong></span>: you have
+                        <span id="details-quantity"></span>&nbsp;shares at 
+                        $<span id="details-value"></span> per share</p>
+
+                    <input type="hidden" id="record-id" name="record_id">
+                    
+                    <div class="row">
+                        <input class="col-sm-3 offset-sm-1 input-group-text" type="number" placeholder="Quantity" id="transaction-quantity" name="transaction_quantity" min="1" required>
+                    
+                        <select class="col-sm-2 offset-sm-1 btn btn-secondary dropdown-toggle" id="transaction-type" name="transaction_type" required>
+                            <option class="dropdown-item" value="buy">Buy</option>
+                            <option class="dropdown-item" value="sell">Sell</option>
+                        </select>
+                
+                        <button class="col-sm-2 offset-sm-1 btn btn-success" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        {% if message.tags == 'success' %}
+                        <div class="alert alert-success" role="alert">{{ message }}</div>
+                        {% elif message.tags == 'error' %}
+                            <div class="alert alert-danger" role="alert">{{ message }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        </div>
+    </div>
+    <script>
+        var radioButtons = document.querySelectorAll('input[type="radio"][name="selected_stock"]');
+        var recordIdField = document.getElementById('record-id');
+
+        radioButtons.forEach(function(radioButton) {
+            radioButton.addEventListener('click', function() {
+                var stock = radioButton.getAttribute('data-stock');
+                var quantity = radioButton.getAttribute('data-quantity');
+                var value = radioButton.getAttribute('data-value');
+                var recordId = radioButton.getAttribute('data-record-id');
+
+                document.getElementById('details-stock').textContent = stock;
+                document.getElementById('details-quantity').textContent = quantity;
+                document.getElementById('details-value').textContent = value / quantity;
+
+                document.getElementById('record-id').value = recordId;
+
+                document.getElementById('transaction-quantity').setAttribute('max', quantity);
+                document.getElementById('details-section').style.display = 'block';
+
+                recordIdField.value = recordId;
+                recordQuantityField.value = quantity;
+                recordValueField.value = value;
+            });
+        });
+
+        function setTransactionType(type) {
+            document.getElementById('item-type').value = type;
+        }
+    </script>
+</body>
+
+</html>

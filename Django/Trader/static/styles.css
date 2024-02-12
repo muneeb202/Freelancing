@@ -1,0 +1,30 @@
+/* styles.css */
+body {
+    font-family: 'Raleway', sans-serif;
+    text-align: center;
+    margin: 20px;
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Raleway', sans-serif;
+}
+.logout {
+    float: right;
+}
+.content {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+.half {
+    width: 48%;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    font-family: 'Raleway', sans-serif;
+}
+.half img{
+    width: 100%;
+}
