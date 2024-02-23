@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+  font-family: "Poppins", sans-serif;
 }
 
 .App-logo {
@@ -35,4 +36,13 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.navbar a {
+  color: rgba(0,0,0,.55) !important;
+  text-decoration: none !important;
+}
+
+.navbar a:hover, a:active {
+  color: black !important;
 }
